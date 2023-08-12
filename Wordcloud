@@ -1,0 +1,14 @@
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
+# Create a list of word
+text=("Delhi Mumbai Chennai Delhi")
+
+# Create the wordcloud object
+wordcloud = WordCloud(width=1000, height=1000, margin=1).generate(text)
+
+# Display the generated image:
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis("off")
+plt.margins(x=0, y=0)
+plt.show()
