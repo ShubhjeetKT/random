@@ -2,4 +2,4 @@
 *****
 The code predicts the sentiment of the tweet i.e. positive, negative or neutral.
 Attached with code:
-A Training dataset csv file with X train and Y train data
+A Training dataset csv file with X train and Y train data 
