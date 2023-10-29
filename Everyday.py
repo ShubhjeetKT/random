@@ -3,3 +3,4 @@ text = input()
 detect(text)   
    
    
+ 
