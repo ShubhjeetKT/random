@@ -5,7 +5,7 @@ http = urllib3.PoolManager()
 response =  http.request('GET',url)
 data = response.data
 currency = json.loads(data)
-currency_data = currency["rates"]
+currency_data = currency["rates"] 
 #BASE = EUR
 user = input("Enter a currency : ")
 for i,j in currency_data.items():
