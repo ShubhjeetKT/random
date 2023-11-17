@@ -9,5 +9,5 @@ currency_data = currency["rates"]
 #BASE = EUR
 user = input("Enter a currency : ")
 for i,j in currency_data.items():
-    if i == user:
+    if i == user: 
         print("Current Value : ", j)
