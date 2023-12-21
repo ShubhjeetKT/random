@@ -3,6 +3,6 @@ text = input()
 detect(text)    
      
     
- 
+  
    
  
