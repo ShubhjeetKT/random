@@ -4,6 +4,6 @@ detect(text)
       
      
    
-    
+     
  
   
