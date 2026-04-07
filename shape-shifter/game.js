@@ -92,8 +92,7 @@ function syncHud() {
 
 function spawnObstacle() {
   const required = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-  const lane = Math.floor(Math.random() * 3);
-  const laneY = [H * 0.28, H * 0.5, H * 0.72][lane];
+  const laneY = H * 0.5;
   state.obstacles.push({
     x: W + 60,
     y: laneY,
@@ -101,6 +100,7 @@ function spawnObstacle() {
     h: 68,
     required,
     passed: false,
+    judged: false,
   });
 }
 
@@ -165,17 +165,14 @@ function update() {
     spawnObstacle();
   }
 
-  const pLeft = player.x - player.size * 0.55;
-  const pRight = player.x + player.size * 0.55;
-  const pTop = player.y - player.size * 0.55;
-  const pBottom = player.y + player.size * 0.55;
+  const judgeX = player.x + 4;
 
   for (const o of state.obstacles) {
     o.x -= state.speed;
 
-    const overlap = !(pRight < o.x || pLeft > o.x + o.w || pBottom < o.y - o.h / 2 || pTop > o.y + o.h / 2);
-
-    if (overlap && !o.passed) {
+    const gateCenterX = o.x + o.w / 2;
+    if (!o.judged && gateCenterX <= judgeX) {
+      o.judged = true;
       if (o.required === currentShape()) {
         o.passed = true;
         state.streak += 1;
