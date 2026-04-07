@@ -1,4 +1,8 @@
-# Space Shooter
+# Random
+
+Day to day usable Python codes and end-to-end deployed projects.
+
+## Space Shooter
 
 A simple arcade-style shooting game built with Python and `pygame`.
 
