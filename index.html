@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Space Shooter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div>
+        <h1>Space Shooter</h1>
+        <p>GitHub Pages browser edition</p>
+      </div>
+      <div class="hud-help">
+        <span>Move: WASD / Arrows</span>
+        <span>Shoot: Space</span>
+        <span>Restart: R</span>
+      </div>
+    </header>
+
+    <main class="game-shell">
+      <aside class="panel">
+        <h2>Mission</h2>
+        <p>Survive enemy waves, collect power-ups, and beat your high score.</p>
+
+        <div class="stats">
+          <div class="stat-card">
+            <span class="label">Score</span>
+            <span id="score">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="label">Level</span>
+            <span id="level">1</span>
+          </div>
+          <div class="stat-card">
+            <span class="label">Lives</span>
+            <span id="lives">3</span>
+          </div>
+          <div class="stat-card">
+            <span class="label">Best</span>
+            <span id="best">0</span>
+          </div>
+        </div>
+
+        <div class="legend">
+          <h3>Power-Ups</h3>
+          <ul>
+            <li><strong>S</strong> Shield</li>
+            <li><strong>R</strong> Rapid Fire</li>
+            <li><strong>B</strong> Bomb</li>
+          </ul>
+        </div>
+      </aside>
+
+      <section class="canvas-wrap">
+        <canvas id="gameCanvas" width="900" height="600"></canvas>
+        <div id="overlay" class="overlay hidden">
+          <h2 id="overlayTitle">Space Shooter</h2>
+          <p id="overlayText">Press Space to start</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
