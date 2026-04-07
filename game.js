@@ -9,6 +9,10 @@ const overlay = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlayTitle');
 const overlayText = document.getElementById('overlayText');
 const overlayBtn = document.getElementById('overlayBtn');
+const mobileControls = document.getElementById('mobileControls');
+const joystick = document.getElementById('joystick');
+const joystickKnob = document.getElementById('joystickKnob');
+const fireBtn = document.getElementById('fireBtn');
 
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
@@ -17,6 +21,15 @@ const keys = {};
 const bestKey = 'space-shooter-best-score';
 let bestScore = Number(localStorage.getItem(bestKey) || 0);
 bestEl.textContent = bestScore;
+
+const mobileInput = {
+  enabled: false,
+  touchId: null,
+  fireTouchId: null,
+  dx: 0,
+  dy: 0,
+  firing: false,
+};
 
 class Star {
   constructor() {
@@ -107,10 +120,21 @@ class Player {
     this.invincible = 0;
   }
   update(state) {
-    if (keys['ArrowLeft'] || keys['a']) this.x -= this.speed;
-    if (keys['ArrowRight'] || keys['d']) this.x += this.speed;
-    if (keys['ArrowUp'] || keys['w']) this.y -= this.speed;
-    if (keys['ArrowDown'] || keys['s']) this.y += this.speed;
+    let moveX = 0;
+    let moveY = 0;
+
+    if (keys['ArrowLeft'] || keys['a']) moveX -= 1;
+    if (keys['ArrowRight'] || keys['d']) moveX += 1;
+    if (keys['ArrowUp'] || keys['w']) moveY -= 1;
+    if (keys['ArrowDown'] || keys['s']) moveY += 1;
+
+    if (mobileInput.enabled) {
+      moveX += mobileInput.dx;
+      moveY += mobileInput.dy;
+    }
+
+    this.x += moveX * this.speed;
+    this.y += moveY * this.speed;
 
     this.x = Math.max(24, Math.min(WIDTH - 24, this.x));
     this.y = Math.max(30, Math.min(HEIGHT - 24, this.y));
@@ -119,7 +143,7 @@ class Player {
     if (this.invincible > 0) this.invincible -= 1;
 
     const fireRate = state.rapid > 0 ? 6 : 12;
-    if (keys[' '] && this.cooldown <= 0) {
+    if ((keys[' '] || mobileInput.firing) && this.cooldown <= 0) {
       this.cooldown = fireRate;
       state.playerBullets.push(new Bullet(this.x - 10, this.y - 16, -10, '#4cc9f0'));
       state.playerBullets.push(new Bullet(this.x + 10, this.y - 16, -10, '#4cc9f0'));
@@ -340,6 +364,82 @@ function startOrResumeGame() {
   }
 }
 
+function resetJoystickVisual() {
+  joystickKnob.style.transform = 'translate(-50%, -50%)';
+}
+
+function setJoystickFromTouch(touch) {
+  const rect = joystick.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  const dx = touch.clientX - centerX;
+  const dy = touch.clientY - centerY;
+  const maxRadius = rect.width * 0.34;
+  const distance = Math.hypot(dx, dy);
+  const scale = distance > maxRadius ? maxRadius / distance : 1;
+
+  const clampedX = dx * scale;
+  const clampedY = dy * scale;
+
+  mobileInput.dx = clampedX / maxRadius;
+  mobileInput.dy = clampedY / maxRadius;
+  joystickKnob.style.transform = `translate(calc(-50% + ${clampedX}px), calc(-50% + ${clampedY}px))`;
+}
+
+function initMobileControls() {
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  mobileInput.enabled = isTouch;
+  if (!isTouch) return;
+
+  mobileControls.classList.remove('hidden');
+
+  joystick.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (!state.running && !state.gameOver) startOrResumeGame();
+    const touch = e.changedTouches[0];
+    mobileInput.touchId = touch.identifier;
+    setJoystickFromTouch(touch);
+  }, { passive: false });
+
+  joystick.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const touch = [...e.changedTouches].find((t) => t.identifier === mobileInput.touchId);
+    if (touch) setJoystickFromTouch(touch);
+  }, { passive: false });
+
+  const endJoystick = (e) => {
+    const touch = [...e.changedTouches].find((t) => t.identifier === mobileInput.touchId);
+    if (!touch) return;
+    mobileInput.touchId = null;
+    mobileInput.dx = 0;
+    mobileInput.dy = 0;
+    resetJoystickVisual();
+  };
+
+  joystick.addEventListener('touchend', endJoystick, { passive: false });
+  joystick.addEventListener('touchcancel', endJoystick, { passive: false });
+
+  fireBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (!state.running && !state.gameOver) startOrResumeGame();
+    const touch = e.changedTouches[0];
+    mobileInput.fireTouchId = touch.identifier;
+    mobileInput.firing = true;
+    fireBtn.classList.add('active');
+  }, { passive: false });
+
+  const endFire = (e) => {
+    const touch = [...e.changedTouches].find((t) => t.identifier === mobileInput.fireTouchId);
+    if (!touch) return;
+    mobileInput.fireTouchId = null;
+    mobileInput.firing = false;
+    fireBtn.classList.remove('active');
+  };
+
+  fireBtn.addEventListener('touchend', endFire, { passive: false });
+  fireBtn.addEventListener('touchcancel', endFire, { passive: false });
+}
+
 function togglePause() {
   if (!state.running || state.gameOver) return;
   state.paused = !state.paused;
@@ -558,4 +658,5 @@ overlayBtn.addEventListener('click', () => {
 });
 
 showOverlay('Space Shooter', 'Press Space to start', 'Start Mission');
+initMobileControls();
 loop();

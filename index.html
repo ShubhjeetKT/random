@@ -57,6 +57,15 @@
 
       <section class="canvas-wrap">
         <canvas id="gameCanvas" width="900" height="600"></canvas>
+
+        <div id="mobileControls" class="mobile-controls hidden" aria-hidden="true">
+          <div id="joystick" class="joystick" aria-label="Move">
+            <div class="joystick-ring"></div>
+            <div id="joystickKnob" class="joystick-knob"></div>
+          </div>
+          <button id="fireBtn" class="fire-btn" type="button" aria-label="Fire">FIRE</button>
+        </div>
+
         <div id="overlay" class="overlay hidden">
           <div class="overlay-card">
             <h2 id="overlayTitle">Space Shooter</h2>
