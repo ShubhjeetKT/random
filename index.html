@@ -9,13 +9,14 @@
 <body>
   <div class="page">
     <header class="topbar">
-      <div>
-        <h1>Space Shooter</h1>
+      <div class="title-wrap">
+        <h1>Space Shooter <span class="tag">Browser Edition</span></h1>
         <p>GitHub Pages browser edition</p>
       </div>
       <div class="hud-help">
         <span>Move: WASD / Arrows</span>
         <span>Shoot: Space</span>
+        <span>Pause: P</span>
         <span>Restart: R</span>
       </div>
     </header>
@@ -57,11 +58,19 @@
       <section class="canvas-wrap">
         <canvas id="gameCanvas" width="900" height="600"></canvas>
         <div id="overlay" class="overlay hidden">
-          <h2 id="overlayTitle">Space Shooter</h2>
-          <p id="overlayText">Press Space to start</p>
+          <div class="overlay-card">
+            <h2 id="overlayTitle">Space Shooter</h2>
+            <p id="overlayText">Press Space to start</p>
+            <button id="overlayBtn" type="button">Start Mission</button>
+          </div>
         </div>
       </section>
     </main>
+
+    <footer class="footer-note">
+      <span>Tip: collect power-ups for shield, rapid fire, and bomb clears.</span>
+      <a href="https://github.com/ShubhjeetKT/random" target="_blank" rel="noreferrer">View repository</a>
+    </footer>
   </div>
 
   <script src="game.js"></script>

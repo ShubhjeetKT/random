@@ -8,6 +8,7 @@ const bestEl = document.getElementById('best');
 const overlay = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlayTitle');
 const overlayText = document.getElementById('overlayText');
+const overlayBtn = document.getElementById('overlayBtn');
 
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
@@ -293,6 +294,7 @@ const state = {
   rapid: 0,
   shield: 0,
   bombFlash: 0,
+  paused: false,
 };
 
 function resetGame() {
@@ -310,8 +312,42 @@ function resetGame() {
   state.rapid = 0;
   state.shield = 0;
   state.bombFlash = 0;
+  state.paused = false;
   overlay.classList.add('hidden');
+  overlayBtn.textContent = 'Start Mission';
   syncHud();
+}
+
+function showOverlay(title, text, buttonText) {
+  overlayTitle.textContent = title;
+  overlayText.textContent = text;
+  overlayBtn.textContent = buttonText;
+  overlay.classList.remove('hidden');
+}
+
+function startOrResumeGame() {
+  if (state.gameOver) {
+    resetGame();
+    return;
+  }
+  if (!state.running) {
+    resetGame();
+    return;
+  }
+  if (state.paused) {
+    state.paused = false;
+    overlay.classList.add('hidden');
+  }
+}
+
+function togglePause() {
+  if (!state.running || state.gameOver) return;
+  state.paused = !state.paused;
+  if (state.paused) {
+    showOverlay('Paused', 'Press P to continue or click resume', 'Resume');
+  } else {
+    overlay.classList.add('hidden');
+  }
 }
 
 function syncHud() {
@@ -344,7 +380,7 @@ function spawnEnemy() {
 
 function update() {
   for (const s of state.stars) s.update();
-  if (!state.running) return;
+  if (!state.running || state.paused) return;
 
   state.player.update(state);
 
@@ -440,9 +476,7 @@ function damagePlayer() {
   if (state.player.lives <= 0) {
     state.running = false;
     state.gameOver = true;
-    overlayTitle.textContent = 'Game Over';
-    overlayText.textContent = `Score: ${state.player.score} • Press R to restart`;
-    overlay.classList.remove('hidden');
+    showOverlay('Game Over', `Score: ${state.player.score} • Press R to restart`, 'Play Again');
   }
 }
 
@@ -505,6 +539,9 @@ window.addEventListener('keydown', (e) => {
   if (state.gameOver && (e.key === 'r' || e.key === 'R')) {
     resetGame();
   }
+  if (e.key === 'p' || e.key === 'P') {
+    togglePause();
+  }
 
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
     e.preventDefault();
@@ -516,7 +553,9 @@ window.addEventListener('keyup', (e) => {
   keys[key] = false;
 });
 
-overlay.classList.remove('hidden');
-overlayTitle.textContent = 'Space Shooter';
-overlayText.textContent = 'Press Space to start';
+overlayBtn.addEventListener('click', () => {
+  startOrResumeGame();
+});
+
+showOverlay('Space Shooter', 'Press Space to start', 'Start Mission');
 loop();

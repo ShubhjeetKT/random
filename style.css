@@ -6,6 +6,7 @@
   --muted: #9eb4d6;
   --accent: #4cc9f0;
   --accent-2: #ffd166;
+  --danger: #fb7185;
 }
 
 * {
@@ -14,17 +15,54 @@
 
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
   color: var(--text);
   background:
     radial-gradient(circle at top, #10214d 0%, #050816 45%, #02030a 100%);
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,0.35), transparent 60%),
+    radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,0.3), transparent 60%),
+    radial-gradient(1px 1px at 78% 35%, rgba(255,255,255,0.28), transparent 60%),
+    radial-gradient(2px 2px at 62% 82%, rgba(255,255,255,0.2), transparent 60%);
+  animation: drift 24s linear infinite;
+}
+
+@keyframes drift {
+  from { transform: translateY(0); }
+  to { transform: translateY(40px); }
 }
 
 .page {
   max-width: 1400px;
   margin: 0 auto;
   padding: 24px;
+}
+
+.title-wrap h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tag {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(76, 201, 240, 0.2);
+  border: 1px solid rgba(76, 201, 240, 0.55);
+  color: #c7f1ff;
 }
 
 .topbar {
@@ -59,6 +97,7 @@ body {
   background: var(--panel);
   border: 1px solid var(--panel-border);
   backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.4);
 }
 
 .hud-help span {
@@ -66,6 +105,12 @@ body {
   border-radius: 999px;
   color: var(--muted);
   font-size: 0.95rem;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.hud-help span:hover {
+  transform: translateY(-1px);
+  border-color: rgba(127, 176, 255, 0.6);
 }
 
 .game-shell {
@@ -104,6 +149,12 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(126, 211, 255, 0.8);
 }
 
 .stat-card .label {
@@ -114,6 +165,7 @@ body {
 .stat-card span:last-child {
   font-weight: 700;
   font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .canvas-wrap {
@@ -128,18 +180,28 @@ canvas {
   display: block;
   border-radius: 12px;
   background: linear-gradient(180deg, #040814 0%, #091127 55%, #02040d 100%);
+  border: 1px solid rgba(103, 177, 255, 0.35);
+  box-shadow: inset 0 0 25px rgba(44, 120, 255, 0.2), 0 0 35px rgba(3, 9, 30, 0.55);
 }
 
 .overlay {
   position: absolute;
   inset: 14px;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  background: rgba(0, 0, 0, 0.48);
+  background: rgba(2, 6, 20, 0.58);
   border-radius: 12px;
+}
+
+.overlay-card {
+  min-width: min(520px, calc(100% - 40px));
+  padding: 28px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(9, 18, 43, 0.95), rgba(7, 12, 28, 0.95));
+  border: 1px solid rgba(113, 186, 255, 0.45);
+  box-shadow: 0 16px 42px rgba(2, 8, 24, 0.65);
 }
 
 .overlay h2 {
@@ -149,9 +211,31 @@ canvas {
 }
 
 .overlay p {
-  margin: 0;
+  margin: 0 0 18px;
   font-size: 1.05rem;
   color: var(--text);
+}
+
+#overlayBtn {
+  appearance: none;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #08111f;
+  background: linear-gradient(90deg, #ffd166, #ffb703);
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+#overlayBtn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+#overlayBtn:active {
+  transform: translateY(0);
 }
 
 .hidden {
@@ -163,12 +247,40 @@ canvas {
   margin-bottom: 0;
 }
 
+.footer-note {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.footer-note a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer-note a:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 980px) {
   .game-shell {
     grid-template-columns: 1fr;
   }
 
   .topbar {
+    flex-direction: column;
+  }
+
+  .overlay-card {
+    min-width: auto;
+    width: calc(100% - 24px);
+    padding: 22px;
+  }
+
+  .footer-note {
     flex-direction: column;
   }
 }
