@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>One-Button Shape Shifter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <h1>One-Button Shape Shifter</h1>
+      <p>Press <strong>Space</strong> or tap/click anywhere to cycle shape.</p>
+    </header>
+
+    <section class="hud">
+      <div class="card"><span>Score</span><b id="score">0</b></div>
+      <div class="card"><span>Best</span><b id="best">0</b></div>
+      <div class="card"><span>Speed</span><b id="speed">1.0x</b></div>
+      <div class="card"><span>Streak</span><b id="streak">0</b></div>
+    </section>
+
+    <section class="arena-shell">
+      <canvas id="game" width="920" height="520"></canvas>
+      <div id="overlay" class="overlay">
+        <div class="panel">
+          <h2 id="title">Ready?</h2>
+          <p id="subtitle">One button. Infinite chaos.</p>
+          <button id="startBtn">Start</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="legend">
+      <span><i class="dot dot-dash"></i> Dash</span>
+      <span><i class="dot dot-tank"></i> Tank</span>
+      <span><i class="dot dot-phase"></i> Phase</span>
+      <a href="../index.html">← Back to Space Shooter</a>
+    </footer>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
