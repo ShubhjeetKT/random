@@ -14,7 +14,9 @@ const startBtn = document.getElementById('startBtn');
 const W = canvas.width;
 const H = canvas.height;
 const FOV = Math.PI / 3;
+const ADS_FOV = Math.PI / 4.5;
 const keys = {};
+const mouse = { shooting: false, ads: false };
 const map = [
   '1111111111111111',
   '1000000000000001',
@@ -38,14 +40,17 @@ const state = {
   running: false,
   gameOver: false,
   hp: 100,
-  ammo: 12,
-  maxAmmo: 12,
+  ammo: 30,
+  maxAmmo: 30,
+  reserveAmmo: 120,
   reloadTime: 0,
   shootCd: 0,
   kills: 0,
   wave: 1,
   muzzle: 0,
   waveTimer: 0,
+  regenDelay: 0,
+  damageFlash: 0,
   enemies: [],
   zBuffer: new Array(W).fill(1e9),
 };
@@ -100,16 +105,22 @@ function spawnWave(level) {
 }
 
 function resetGame() {
+  document.exitPointerLock?.();
+  mouse.shooting = false;
+  mouse.ads = false;
   state.running = true;
   state.gameOver = false;
   state.hp = 100;
   state.ammo = state.maxAmmo;
+  state.reserveAmmo = 120;
   state.reloadTime = 0;
   state.shootCd = 0;
   state.kills = 0;
   state.wave = 1;
   state.muzzle = 0;
   state.waveTimer = 0;
+  state.regenDelay = 0;
+  state.damageFlash = 0;
   state.enemies = [];
   player.x = 2.5;
   player.y = 2.5;
@@ -121,7 +132,7 @@ function resetGame() {
 
 function syncHud() {
   hpEl.textContent = Math.max(0, Math.floor(state.hp));
-  ammoEl.textContent = state.reloadTime > 0 ? 'Reload...' : `${state.ammo}`;
+  ammoEl.textContent = state.reloadTime > 0 ? 'Reload...' : `${state.ammo}/${state.reserveAmmo}`;
   waveEl.textContent = state.wave;
   killsEl.textContent = state.kills;
   if (state.kills > best) {
@@ -141,11 +152,14 @@ function showOverlay(title, text, button = 'Start') {
 function gameOver() {
   state.running = false;
   state.gameOver = true;
+  document.exitPointerLock?.();
+  mouse.shooting = false;
+  mouse.ads = false;
   showOverlay('Mission Failed', `Kills: ${state.kills} • Wave: ${state.wave}`, 'Retry');
 }
 
 function reload() {
-  if (state.reloadTime > 0 || state.ammo === state.maxAmmo) return;
+  if (state.reloadTime > 0 || state.ammo === state.maxAmmo || state.reserveAmmo <= 0) return;
   state.reloadTime = 1.1;
 }
 
@@ -157,7 +171,7 @@ function handleShoot() {
   }
 
   state.ammo -= 1;
-  state.shootCd = 0.2;
+  state.shootCd = mouse.ads ? 0.12 : 0.095;
   state.muzzle = 0.08;
 
   const cx = W / 2;
@@ -176,7 +190,7 @@ function handleShoot() {
   }
 
   if (bestTarget) {
-    bestTarget.hp -= 40;
+    bestTarget.hp -= mouse.ads ? 55 : 40;
     if (bestTarget.hp <= 0) {
       bestTarget.alive = false;
       state.kills += 1;
@@ -185,7 +199,8 @@ function handleShoot() {
 }
 
 function movePlayer(dt) {
-  const moveSpeed = 2.9 * dt;
+  const sprinting = keys['Shift'] && !mouse.ads;
+  const moveSpeed = (sprinting ? 4.2 : 2.9) * dt;
   const rotSpeed = 2.2 * dt;
 
   if (keys['ArrowLeft']) player.angle -= rotSpeed;
@@ -231,6 +246,8 @@ function updateEnemies(dt) {
     if (dist <= 1.35 && e.hitCd <= 0) {
       state.hp -= 10;
       e.hitCd = 0.9;
+      state.regenDelay = 3;
+      state.damageFlash = 0.5;
       if (state.hp <= 0) {
         state.hp = 0;
         gameOver();
@@ -257,24 +274,33 @@ function update(dt) {
     state.reloadTime -= dt;
     if (state.reloadTime <= 0) {
       state.reloadTime = 0;
-      state.ammo = state.maxAmmo;
+      const need = state.maxAmmo - state.ammo;
+      const take = Math.min(need, state.reserveAmmo);
+      state.ammo += take;
+      state.reserveAmmo -= take;
     }
   }
 
   if (state.shootCd > 0) state.shootCd -= dt;
   if (state.muzzle > 0) state.muzzle -= dt;
+  if (state.damageFlash > 0) state.damageFlash -= dt;
+  if (state.regenDelay > 0) {
+    state.regenDelay -= dt;
+  } else if (state.hp < 100) {
+    state.hp = Math.min(100, state.hp + 12 * dt);
+  }
 
   movePlayer(dt);
   updateEnemies(dt);
 
-  if (keys[' ']) handleShoot();
+  if (keys[' '] || mouse.shooting) handleShoot();
 
   syncHud();
 }
 
-function raycastColumn(col) {
+function raycastColumn(col, activeFov) {
   const cameraX = 2 * col / W - 1;
-  const rayAngle = player.angle + Math.atan(cameraX * Math.tan(FOV / 2));
+  const rayAngle = player.angle + Math.atan(cameraX * Math.tan(activeFov / 2));
   const rayDirX = Math.cos(rayAngle);
   const rayDirY = Math.sin(rayAngle);
 
@@ -325,13 +351,14 @@ function raycastColumn(col) {
 }
 
 function renderWorld() {
+  const activeFov = mouse.ads ? ADS_FOV : FOV;
   ctx.fillStyle = '#10244b';
   ctx.fillRect(0, 0, W, H / 2);
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(0, H / 2, W, H / 2);
 
   for (let x = 0; x < W; x++) {
-    const ray = raycastColumn(x);
+    const ray = raycastColumn(x, activeFov);
     state.zBuffer[x] = ray.dist;
 
     const lineHeight = Math.min(H, Math.floor(H / ray.dist));
@@ -343,6 +370,7 @@ function renderWorld() {
 }
 
 function renderEnemies() {
+  const activeFov = mouse.ads ? ADS_FOV : FOV;
   const list = state.enemies.map((e) => {
     const dx = e.x - player.x;
     const dy = e.y - player.y;
@@ -357,14 +385,14 @@ function renderEnemies() {
     while (angle < -Math.PI) angle += Math.PI * 2;
     while (angle > Math.PI) angle -= Math.PI * 2;
 
-    if (Math.abs(angle) > FOV * 0.65) {
+    if (Math.abs(angle) > activeFov * 0.65) {
       e.screen = null;
       continue;
     }
 
     const dist = Math.max(0.0001, item.dist);
     const size = Math.min(H * 0.85, H / dist);
-    const sx = (0.5 + angle / FOV) * W;
+    const sx = (0.5 + angle / activeFov) * W;
     const sy = H / 2 - size / 2;
     const startX = Math.floor(sx - size / 2);
     const endX = Math.floor(sx + size / 2);
@@ -394,11 +422,12 @@ function renderCrosshair() {
   ctx.lineWidth = 2;
   const cx = W / 2;
   const cy = H / 2;
+  const spread = mouse.ads ? 4 : 10;
   ctx.beginPath();
-  ctx.moveTo(cx - 10, cy);
-  ctx.lineTo(cx + 10, cy);
-  ctx.moveTo(cx, cy - 10);
-  ctx.lineTo(cx, cy + 10);
+  ctx.moveTo(cx - spread, cy);
+  ctx.lineTo(cx + spread, cy);
+  ctx.moveTo(cx, cy - spread);
+  ctx.lineTo(cx, cy + spread);
   ctx.stroke();
 
   if (state.muzzle > 0) {
@@ -407,6 +436,17 @@ function renderCrosshair() {
     ctx.arc(cx, cy, 16 + state.muzzle * 120, 0, Math.PI * 2);
     ctx.fill();
   }
+}
+
+function renderWeapon() {
+  const bob = Math.sin(performance.now() * 0.01) * (keys['w'] || keys['a'] || keys['s'] || keys['d'] ? 4 : 1.2);
+  const weaponY = H - 95 + bob;
+  ctx.fillStyle = 'rgba(18, 24, 38, 0.9)';
+  ctx.fillRect(W / 2 - 110, weaponY, 220, 90);
+  ctx.fillStyle = 'rgba(35, 52, 74, 0.95)';
+  ctx.fillRect(W / 2 - 20, weaponY - 12, 140, 28);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(W / 2 + 110, weaponY - 9, 16, 6);
 }
 
 function renderMiniMap() {
@@ -441,7 +481,13 @@ function render() {
   renderWorld();
   renderEnemies();
   renderCrosshair();
+  renderWeapon();
   renderMiniMap();
+
+  if (state.damageFlash > 0) {
+    ctx.fillStyle = `rgba(239,68,68,${Math.min(0.35, state.damageFlash * 0.6)})`;
+    ctx.fillRect(0, 0, W, H);
+  }
 }
 
 function loop(ts) {
@@ -464,6 +510,11 @@ window.addEventListener('keydown', (e) => {
   }
 
   if ((e.key === 'r' || e.key === 'R') && state.running) reload();
+
+  if ((e.key === 'l' || e.key === 'L') && state.running) {
+    if (document.pointerLockElement === canvas) document.exitPointerLock?.();
+    else canvas.requestPointerLock?.();
+  }
 });
 
 window.addEventListener('keyup', (e) => {
@@ -472,14 +523,44 @@ window.addEventListener('keyup', (e) => {
 });
 
 canvas.addEventListener('pointerdown', () => {
-  if (!state.running) resetGame();
-  else handleShoot();
+  if (!state.running) {
+    resetGame();
+  } else {
+    mouse.shooting = true;
+    handleShoot();
+  }
+});
+
+window.addEventListener('pointerup', () => {
+  mouse.shooting = false;
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (document.pointerLockElement === canvas && state.running) {
+    player.angle += e.movementX * 0.0022;
+  }
+});
+
+window.addEventListener('contextmenu', (e) => {
+  if (e.target === canvas) e.preventDefault();
+});
+
+window.addEventListener('mousedown', (e) => {
+  if (e.button === 2) mouse.ads = true;
+});
+
+window.addEventListener('mouseup', (e) => {
+  if (e.button === 2) mouse.ads = false;
+});
+
+document.addEventListener('pointerlockchange', () => {
+  canvas.classList.toggle('locked', document.pointerLockElement === canvas);
 });
 
 startBtn.addEventListener('click', () => {
   resetGame();
 });
 
-showOverlay('FPS Blitz', 'WASD move • Arrow keys turn • Click/Space shoot • R reload', 'Start Mission');
+showOverlay('FPS Blitz', 'WASD move • L toggle mouse look • Esc release • Shift sprint • Right click ADS • Left click shoot • R reload', 'Start Mission');
 syncHud();
 requestAnimationFrame(loop);
