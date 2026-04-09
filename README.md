@@ -2,6 +2,12 @@
 
 Day to day usable Python codes and end-to-end deployed projects.
 
+## Browser games
+
+- Space Shooter: `index.html`
+- One-Button Shape Shifter: `shape-shifter/index.html`
+- FPS Blitz: `fps-blitz/index.html`
+
 ## Space Shooter
 
 A simple arcade-style shooting game built with Python and `pygame`.
