@@ -1,93 +1,534 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Space Shooter</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Hero — Hyperlocal Problem Solver</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.47.0/iconfont/tabler-icons.min.css">
+<style>
+:root{
+  --color-background-primary:#ffffff;
+  --color-background-secondary:#f5f5f3;
+  --color-text-primary:#1a1a1a;
+  --color-text-secondary:#6b6b68;
+  --color-text-tertiary:#9a9a96;
+  --color-border-tertiary:rgba(0,0,0,0.12);
+  --color-border-secondary:rgba(0,0,0,0.22);
+  --color-border-primary:rgba(0,0,0,0.32);
+  --border-radius-md:8px;
+  --border-radius-lg:12px;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --color-background-primary:#1c1c1c;
+    --color-background-secondary:#262626;
+    --color-text-primary:#f0f0ee;
+    --color-text-secondary:#a8a8a4;
+    --color-text-tertiary:#7a7a76;
+    --color-border-tertiary:rgba(255,255,255,0.12);
+    --color-border-secondary:rgba(255,255,255,0.22);
+    --color-border-primary:rgba(255,255,255,0.32);
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--color-background-secondary);font-family:var(--font-sans);min-height:100vh}
+body{display:flex;align-items:flex-start;justify-content:center;padding:24px 12px}
+.page{width:100%;max-width:1100px}
+.ch-wrap{width:100%;min-height:600px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.ch-header{background:#1a3a5c;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.ch-logo{display:flex;align-items:center;gap:10px;color:#fff}
+.ch-logo-icon{width:32px;height:32px;background:#2563a8;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.ch-logo-text{font-size:15px;font-weight:500;color:#fff}
+.ch-logo-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px}
+.ch-header-right{display:flex;align-items:center;gap:12px}
+.ch-user-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);border-radius:20px;padding:5px 12px 5px 5px}
+.ch-avatar{width:24px;height:24px;background:#3b82f6;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff}
+.ch-user-name{font-size:12px;color:rgba(255,255,255,0.9)}
+.ch-xp-badge{background:#f59e0b;color:#fff;font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px}
+.ch-nav{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);overflow-x:auto}
+.ch-nav-item{padding:10px 16px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;transition:all 0.15s;white-space:nowrap}
+.ch-nav-item:hover{color:var(--color-text-primary)}
+.ch-nav-item.active{color:#1a3a5c;border-bottom-color:#1a3a5c;font-weight:500}
+.ch-body{display:grid;grid-template-columns:1fr 320px;min-height:540px}
+.ch-main{padding:16px;border-right:0.5px solid var(--color-border-tertiary)}
+.ch-sidebar{padding:16px;background:var(--color-background-secondary)}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.stat-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px}
+.stat-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.stat-val{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.stat-delta{font-size:10px;margin-top:2px}
+.map-container{background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);padding:12px;margin-bottom:14px;position:relative}
+.map-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px;justify-content:space-between;flex-wrap:wrap}
+.map-svg-wrap{width:100%;height:210px;position:relative;overflow:hidden;border-radius:6px}
+.map-legend{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--color-text-secondary)}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+.issue-list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.issue-list-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.filter-pill{padding:3px 10px;border-radius:20px;font-size:11px;border:0.5px solid var(--color-border-secondary);cursor:pointer;color:var(--color-text-secondary);background:var(--color-background-primary)}
+.filter-pill.active{background:#1a3a5c;color:#fff;border-color:#1a3a5c}
+.issue-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s}
+.issue-card:hover{border-color:var(--color-border-primary)}
+.issue-card.selected{border-color:#2563a8;border-width:1px}
+.ic-top{display:flex;align-items:flex-start;gap:10px}
+.ic-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.ic-info{flex:1;min-width:0}
+.ic-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.ic-meta{font-size:11px;color:var(--color-text-secondary);display:flex;gap:8px;flex-wrap:wrap}
+.ic-badges{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
+.badge-critical{background:#FCEBEB;color:#A32D2D}
+.badge-high{background:#FAEEDA;color:#854F0B}
+.badge-medium{background:#EAF3DE;color:#3B6D11}
+.badge-info{background:#E6F1FB;color:#185FA5}
+.badge-resolved{background:#EAF3DE;color:#3B6D11}
+.badge-progress{background:#FAEEDA;color:#854F0B}
+.badge-pending{background:#F1EFE8;color:#5F5E5A}
+.ic-votes{display:flex;align-items:center;gap:4px;margin-left:auto;flex-direction:column;align-items:center}
+.vote-btn{width:28px;height:28px;border-radius:6px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:var(--color-text-secondary)}
+.vote-btn:hover{background:#E6F1FB;color:#185FA5}
+.vote-count{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.progress-bar{height:4px;background:var(--color-background-secondary);border-radius:2px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;transition:width 0.3s}
+.report-btn{width:100%;padding:10px;background:#1a3a5c;color:#fff;border:none;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px}
+.report-btn:hover{background:#2563a8}
+.sb-section{margin-bottom:16px}
+.sb-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ai-insight{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:8px}
+.ai-insight-label{font-size:10px;color:#185FA5;font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.ai-insight-text{font-size:11px;color:var(--color-text-primary);line-height:1.5}
+.leaderboard-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.leaderboard-row:last-child{border-bottom:none}
+.lb-rank{font-size:11px;font-weight:500;color:var(--color-text-secondary);width:18px;text-align:center}
+.lb-rank.gold{color:#854F0B}
+.lb-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500}
+.lb-name{flex:1;font-size:12px;color:var(--color-text-primary)}
+.lb-pts{font-size:11px;color:var(--color-text-secondary)}
+.lb-badge{font-size:14px}
+.activity-item{display:flex;gap:8px;margin-bottom:10px;align-items:flex-start}
+.activity-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.activity-text{font-size:11px;color:var(--color-text-secondary);line-height:1.4}
+.activity-time{font-size:10px;color:var(--color-text-tertiary)}
+.cat-bars{margin-top:8px}
+.cat-row{margin-bottom:8px}
+.cat-label-row{display:flex;justify-content:space-between;margin-bottom:3px}
+.cat-label{font-size:11px;color:var(--color-text-secondary)}
+.cat-count{font-size:11px;font-weight:500;color:var(--color-text-primary)}
+.cat-bar{height:5px;background:var(--color-background-primary);border-radius:3px;overflow:hidden}
+.cat-fill{height:100%;border-radius:3px}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:20px;width:380px;max-width:95%;max-height:80vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-title{font-size:15px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:18px;padding:2px 6px}
+.field-label{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px;margin-top:12px}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:4px}
+.type-option{padding:8px 6px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);text-align:center;cursor:pointer;font-size:11px;color:var(--color-text-secondary)}
+.type-option:hover,.type-option.selected{border-color:#2563a8;background:#E6F1FB;color:#185FA5}
+.ai-tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.ai-tag{padding:3px 10px;background:#E6F1FB;color:#185FA5;border-radius:20px;font-size:11px}
+.submit-btn{width:100%;padding:11px;background:#1a3a5c;color:#fff;border:none;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;margin-top:16px}
+.submit-btn:hover{background:#2563a8}
+.verify-btn{padding:4px 10px;border:0.5px solid var(--color-border-secondary);border-radius:20px;font-size:10px;color:var(--color-text-secondary);background:var(--color-background-secondary);cursor:pointer}
+.verify-btn:hover{background:#EAF3DE;color:#3B6D11;border-color:#3B6D11}
+.hidden{display:none}
+textarea,input[type="text"]{font-family:var(--font-sans);color:var(--color-text-primary)}
+footer.note{max-width:1100px;margin:14px auto 0;text-align:center;font-size:11px;color:var(--color-text-tertiary)}
+@media (max-width:760px){
+  .ch-body{grid-template-columns:1fr}
+  .ch-main{border-right:none;border-bottom:0.5px solid var(--color-border-tertiary)}
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
 </head>
 <body>
-  <div class="page">
-    <header class="topbar">
-      <div class="title-wrap">
-        <h1>Space Shooter <span class="tag">Browser Edition</span></h1>
-        <p>GitHub Pages browser edition</p>
-      </div>
-      <div class="hud-help">
-        <span>Move: WASD / Arrows</span>
-        <span>Shoot: Space</span>
-        <span>Pause: P</span>
-        <span>Restart: R</span>
-      </div>
-    </header>
-
-    <main class="game-shell">
-      <aside class="panel">
-        <h2>Mission</h2>
-        <p>Survive enemy waves, collect power-ups, and beat your high score.</p>
-
-        <div class="stats">
-          <div class="stat-card">
-            <span class="label">Score</span>
-            <span id="score">0</span>
-          </div>
-          <div class="stat-card">
-            <span class="label">Level</span>
-            <span id="level">1</span>
-          </div>
-          <div class="stat-card">
-            <span class="label">Lives</span>
-            <span id="lives">3</span>
-          </div>
-          <div class="stat-card">
-            <span class="label">Best</span>
-            <span id="best">0</span>
-          </div>
-        </div>
-
-        <div class="legend">
-          <h3>Power-Ups</h3>
-          <ul>
-            <li><strong>S</strong> Shield</li>
-            <li><strong>R</strong> Rapid Fire</li>
-            <li><strong>B</strong> Bomb</li>
-          </ul>
-        </div>
-      </aside>
-
-      <section class="canvas-wrap">
-        <canvas id="gameCanvas" width="900" height="600"></canvas>
-
-        <div id="mobileControls" class="mobile-controls hidden" aria-hidden="true">
-          <div id="joystick" class="joystick" aria-label="Move">
-            <div class="joystick-ring"></div>
-            <div id="joystickKnob" class="joystick-knob"></div>
-          </div>
-          <button id="fireBtn" class="fire-btn" type="button" aria-label="Fire">FIRE</button>
-        </div>
-
-        <div id="overlay" class="overlay hidden">
-          <div class="overlay-card">
-            <h2 id="overlayTitle">Space Shooter</h2>
-            <p id="overlayText">Press Space to start</p>
-            <button id="overlayBtn" type="button">Start Mission</button>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="footer-note">
-      <span>Tip: collect power-ups for shield, rapid fire, and bomb clears.</span>
+<div class="page">
+<div class="ch-wrap">
+  <div class="ch-header">
+    <div class="ch-logo">
+      <div class="ch-logo-icon"><i class="ti ti-map-pin" style="color:#fff;font-size:16px" aria-hidden="true"></i></div>
       <div>
-        <a href="shape-shifter/index.html">Play Shape Shifter</a>
-        <span> • </span>
-        <a href="fps-blitz/index.html">Play FPS Blitz</a>
-        <span> • </span>
-        <a href="https://github.com/ShubhjeetKT/random" target="_blank" rel="noreferrer">View repository</a>
+        <div class="ch-logo-text">Community Hero</div>
+        <div class="ch-logo-sub">Hyperlocal Problem Solver</div>
       </div>
-    </footer>
+    </div>
+    <div class="ch-header-right">
+      <div class="ch-xp-badge"><i class="ti ti-star" style="font-size:10px" aria-hidden="true"></i> 1,240 XP · Level 7</div>
+      <div class="ch-user-pill">
+        <div class="ch-avatar">SJ</div>
+        <div class="ch-user-name">Shubhjeet</div>
+      </div>
+    </div>
   </div>
 
-  <script src="game.js"></script>
+  <div class="ch-nav">
+    <div class="ch-nav-item active" data-tab="dashboard"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</div>
+    <div class="ch-nav-item" data-tab="report"><i class="ti ti-plus-circle" aria-hidden="true"></i> Report Issue</div>
+    <div class="ch-nav-item" data-tab="map"><i class="ti ti-map" aria-hidden="true"></i> Live Map</div>
+    <div class="ch-nav-item" data-tab="leaderboard"><i class="ti ti-trophy" aria-hidden="true"></i> Leaderboard</div>
+    <div class="ch-nav-item" data-tab="insights"><i class="ti ti-sparkles" aria-hidden="true"></i> AI Insights</div>
+  </div>
+
+  <div class="ch-body" id="dashboard-tab">
+    <div class="ch-main">
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label"><i class="ti ti-alert-triangle" style="font-size:12px;color:#D85A30" aria-hidden="true"></i> Total Issues</div>
+          <div class="stat-val">1,482</div>
+          <div class="stat-delta" style="color:#639922">↑ 38 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><i class="ti ti-check-circle" style="font-size:12px;color:#639922" aria-hidden="true"></i> Resolved</div>
+          <div class="stat-val">1,047</div>
+          <div class="stat-delta" style="color:var(--color-text-secondary)">70.6% rate</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><i class="ti ti-clock" style="font-size:12px;color:#BA7517" aria-hidden="true"></i> Avg. Resolution</div>
+          <div class="stat-val">3.2d</div>
+          <div class="stat-delta" style="color:#639922">↓ 0.8d faster</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><i class="ti ti-users" style="font-size:12px;color:#378ADD" aria-hidden="true"></i> Active Citizens</div>
+          <div class="stat-val">6,741</div>
+          <div class="stat-delta" style="color:#639922">↑ 12% this month</div>
+        </div>
+      </div>
+
+      <div class="map-container">
+        <div class="map-title">
+          <span><i class="ti ti-map-2" style="font-size:13px;color:var(--color-text-secondary)" aria-hidden="true"></i> Issue heatmap — South Delhi</span>
+          <span style="font-size:11px;color:var(--color-text-secondary);font-weight:400">Live · Updated 2 min ago</span>
+        </div>
+        <div class="map-svg-wrap">
+          <svg viewBox="0 0 560 210" width="100%" height="210" xmlns="http://www.w3.org/2000/svg">
+            <rect width="560" height="210" fill="#e8f0f7" rx="6"/>
+            <rect x="0" y="0" width="560" height="210" fill="url(#grid)" opacity="0.3"/>
+            <defs>
+              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#c5d5e8" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+            <rect x="60" y="30" width="180" height="90" rx="4" fill="#d0e4f5" stroke="#b0cce8" stroke-width="0.5"/>
+            <rect x="260" y="20" width="140" height="110" rx="4" fill="#d0e4f5" stroke="#b0cce8" stroke-width="0.5"/>
+            <rect x="80" y="130" width="220" height="60" rx="4" fill="#c8ddf0" stroke="#b0cce8" stroke-width="0.5"/>
+            <rect x="320" y="140" width="160" height="55" rx="4" fill="#c8ddf0" stroke="#b0cce8" stroke-width="0.5"/>
+            <rect x="40" y="100" width="30" height="90" rx="2" fill="#b8cfea" stroke="#9fbfe0" stroke-width="0.5"/>
+            <rect x="180" y="80" width="70" height="20" rx="2" fill="#b8cfea" stroke="#9fbfe0" stroke-width="0.5"/>
+            <rect x="150" y="20" width="20" height="100" rx="2" fill="#b8cfea" stroke="#9fbfe0" stroke-width="0.5"/>
+            <rect x="400" y="80" width="120" height="15" rx="2" fill="#b8cfea" stroke="#9fbfe0" stroke-width="0.5"/>
+            <circle cx="130" cy="75" r="22" fill="rgba(231,76,60,0.25)" stroke="rgba(231,76,60,0.6)" stroke-width="1"/>
+            <circle cx="130" cy="75" r="12" fill="rgba(231,76,60,0.5)"/>
+            <text x="130" y="79" text-anchor="middle" font-size="9" fill="#fff" font-weight="500">5</text>
+            <circle cx="310" cy="65" r="18" fill="rgba(231,140,60,0.25)" stroke="rgba(231,140,60,0.6)" stroke-width="1"/>
+            <circle cx="310" cy="65" r="10" fill="rgba(231,140,60,0.55)"/>
+            <text x="310" y="69" text-anchor="middle" font-size="9" fill="#fff" font-weight="500">3</text>
+            <circle cx="200" cy="155" r="14" fill="rgba(52,152,219,0.25)" stroke="rgba(52,152,219,0.6)" stroke-width="1"/>
+            <circle cx="200" cy="155" r="8" fill="rgba(52,152,219,0.5)"/>
+            <text x="200" y="158" text-anchor="middle" font-size="8" fill="#fff" font-weight="500">2</text>
+            <circle cx="420" cy="115" r="16" fill="rgba(231,76,60,0.2)" stroke="rgba(231,76,60,0.5)" stroke-width="1"/>
+            <circle cx="420" cy="115" r="9" fill="rgba(231,76,60,0.45)"/>
+            <text x="420" y="119" text-anchor="middle" font-size="8" fill="#fff" font-weight="500">4</text>
+            <circle cx="90" cy="160" r="10" fill="rgba(39,174,96,0.3)" stroke="rgba(39,174,96,0.6)" stroke-width="1"/>
+            <circle cx="90" cy="160" r="6" fill="rgba(39,174,96,0.5)"/>
+            <text x="90" y="164" text-anchor="middle" font-size="8" fill="#fff" font-weight="500">1</text>
+            <rect x="8" y="8" width="90" height="16" rx="3" fill="rgba(255,255,255,0.85)"/>
+            <text x="14" y="19" font-size="9" fill="#1a3a5c" font-weight="500">Hauz Khas</text>
+            <rect x="270" y="8" width="80" height="16" rx="3" fill="rgba(255,255,255,0.85)"/>
+            <text x="276" y="19" font-size="9" fill="#1a3a5c" font-weight="500">Lajpat Nagar</text>
+            <rect x="360" y="170" width="72" height="14" rx="3" fill="rgba(255,255,255,0.85)"/>
+            <text x="366" y="180" font-size="8" fill="#1a3a5c">Greater Kailash</text>
+          </svg>
+        </div>
+        <div class="map-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(231,76,60,0.7)"></div> Critical (5+)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(231,140,60,0.7)"></div> High (3–4)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(52,152,219,0.7)"></div> Moderate (2)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(39,174,96,0.7)"></div> Low (1)</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="issue-list-header">
+          <div class="issue-list-title">Recent reports</div>
+          <div class="filter-row">
+            <div class="filter-pill active" data-filter="all">All</div>
+            <div class="filter-pill" data-filter="pothole">Pothole</div>
+            <div class="filter-pill" data-filter="water">Water</div>
+            <div class="filter-pill" data-filter="light">Streetlight</div>
+            <div class="filter-pill" data-filter="waste">Waste</div>
+          </div>
+        </div>
+        <div id="issue-list"></div>
+      </div>
+    </div>
+
+    <div class="ch-sidebar">
+      <button class="report-btn" id="open-report-btn">
+        <i class="ti ti-plus" aria-hidden="true"></i> Report a new issue
+      </button>
+
+      <div class="sb-section">
+        <div class="sb-title"><i class="ti ti-sparkles" style="font-size:13px;color:#378ADD" aria-hidden="true"></i> AI insights</div>
+        <div class="ai-insight">
+          <div class="ai-insight-label"><i class="ti ti-trending-up" style="font-size:11px" aria-hidden="true"></i> Predictive alert</div>
+          <div class="ai-insight-text">Pothole density in Lajpat Nagar has risen 40% post-monsoon. Preventive maintenance recommended before peak traffic hours.</div>
+        </div>
+        <div class="ai-insight">
+          <div class="ai-insight-label"><i class="ti ti-bolt" style="font-size:11px" aria-hidden="true"></i> Pattern detected</div>
+          <div class="ai-insight-text">3 streetlight outages cluster near MG Road. Likely shared electrical fault — single repair may resolve all.</div>
+        </div>
+        <div class="ai-insight">
+          <div class="ai-insight-label"><i class="ti ti-clock" style="font-size:11px" aria-hidden="true"></i> Resolution forecast</div>
+          <div class="ai-insight-text">Water leak at Hauz Khas Village (issue #4821) matches past patterns — expected resolution: 18–24 hrs.</div>
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title"><i class="ti ti-chart-bar" style="font-size:13px" aria-hidden="true"></i> Issues by category</div>
+        <div class="cat-bars">
+          <div class="cat-row"><div class="cat-label-row"><span class="cat-label">Potholes</span><span class="cat-count">432</span></div><div class="cat-bar"><div class="cat-fill" style="width:82%;background:#D85A30"></div></div></div>
+          <div class="cat-row"><div class="cat-label-row"><span class="cat-label">Water leakage</span><span class="cat-count">287</span></div><div class="cat-bar"><div class="cat-fill" style="width:55%;background:#378ADD"></div></div></div>
+          <div class="cat-row"><div class="cat-label-row"><span class="cat-label">Streetlights</span><span class="cat-count">198</span></div><div class="cat-bar"><div class="cat-fill" style="width:38%;background:#BA7517"></div></div></div>
+          <div class="cat-row"><div class="cat-label-row"><span class="cat-label">Waste management</span><span class="cat-count">176</span></div><div class="cat-bar"><div class="cat-fill" style="width:33%;background:#639922"></div></div></div>
+          <div class="cat-row"><div class="cat-label-row"><span class="cat-label">Other</span><span class="cat-count">124</span></div><div class="cat-bar"><div class="cat-fill" style="width:24%;background:#888780"></div></div></div>
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title"><i class="ti ti-trophy" style="font-size:13px;color:#BA7517" aria-hidden="true"></i> Top heroes this week</div>
+        <div id="leaderboard-mini"></div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title"><i class="ti ti-activity" style="font-size:13px" aria-hidden="true"></i> Live activity</div>
+        <div id="activity-feed"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-overlay" class="hidden">
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title"><i class="ti ti-alert-circle" style="font-size:15px;color:#D85A30;margin-right:6px" aria-hidden="true"></i> Report an issue</div>
+          <button class="modal-close" id="modal-close-btn"><i class="ti ti-x" aria-hidden="true"></i></button>
+        </div>
+        <div class="field-label">Issue type</div>
+        <div class="type-grid">
+          <div class="type-option" data-type="pothole"><i class="ti ti-road" style="font-size:18px;display:block;margin-bottom:3px" aria-hidden="true"></i>Pothole</div>
+          <div class="type-option" data-type="water"><i class="ti ti-droplet" style="font-size:18px;display:block;margin-bottom:3px" aria-hidden="true"></i>Water leak</div>
+          <div class="type-option" data-type="light"><i class="ti ti-bulb" style="font-size:18px;display:block;margin-bottom:3px" aria-hidden="true"></i>Streetlight</div>
+          <div class="type-option" data-type="waste"><i class="ti ti-trash" style="font-size:18px;display:block;margin-bottom:3px" aria-hidden="true"></i>Waste</div>
+          <div class="type-option" data-type="infra"><i class="ti ti-building" style="font-size:18px;display:block;margin-bottom:3px" aria-hidden="true"></i>Infrastructure</div>
+          <div class="type-option" data-type="other"><i class="ti ti-dots" style="font-size:18px;display:block;margin-bottom:3px" aria-hidden="true"></i>Other</div>
+        </div>
+        <div class="field-label">Description</div>
+        <textarea style="width:100%;height:72px;padding:8px;font-size:12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);resize:none" placeholder="Describe the issue briefly..." id="issue-desc"></textarea>
+        <div id="ai-analysis" class="hidden">
+          <div style="margin-top:8px;padding:8px 10px;background:#E6F1FB;border-radius:var(--border-radius-md);border:0.5px solid #B5D4F4">
+            <div style="font-size:10px;color:#185FA5;font-weight:500;margin-bottom:4px"><i class="ti ti-sparkles" style="font-size:11px" aria-hidden="true"></i> AI auto-categorized</div>
+            <div class="ai-tag-row" id="ai-tags"></div>
+          </div>
+        </div>
+        <div class="field-label">Location</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" style="flex:1;font-size:12px;height:36px;padding:0 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary)" placeholder="Auto-detected: Hauz Khas, New Delhi" id="issue-loc"/>
+          <button style="padding:6px 10px;font-size:11px;background:#E6F1FB;color:#185FA5;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);cursor:pointer;height:36px"><i class="ti ti-current-location" aria-hidden="true"></i></button>
+        </div>
+        <div class="field-label">Photo / video</div>
+        <div id="upload-zone" style="border:1px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);padding:16px;text-align:center;cursor:pointer;background:var(--color-background-secondary)">
+          <i class="ti ti-camera" style="font-size:20px;color:var(--color-text-secondary);display:block;margin-bottom:4px" aria-hidden="true"></i>
+          <span style="font-size:11px;color:var(--color-text-secondary)">Tap to add image or video</span>
+        </div>
+        <div class="field-label">Severity (AI estimated)</div>
+        <div style="display:flex;gap:6px" id="severity-row">
+          <div class="badge badge-critical" data-sev="critical" style="cursor:pointer;padding:5px 12px">Critical</div>
+          <div class="badge badge-high" data-sev="high" style="cursor:pointer;padding:5px 12px">High</div>
+          <div class="badge" data-sev="medium" style="cursor:pointer;padding:5px 12px;background:#E6F1FB;color:#185FA5;outline:2px solid #2563a8">Medium</div>
+          <div class="badge badge-pending" data-sev="low" style="cursor:pointer;padding:5px 12px">Low</div>
+        </div>
+        <button class="submit-btn" id="submit-issue-btn"><i class="ti ti-send" style="margin-right:6px" aria-hidden="true"></i> Submit report · earn +50 XP</button>
+      </div>
+    </div>
+  </div>
+</div>
+<footer class="note">Community Hero — interactive prototype. All data shown is sample data for demonstration.</footer>
+</div>
+
+<script>
+const issues=[
+  {id:4822,type:'pothole',title:'Large pothole on Aurobindo Marg',loc:'Hauz Khas, South Delhi',time:'12 min ago',severity:'critical',status:'pending',votes:24,verified:7,progress:15,icon:'ti-road',color:'#D85A30',bg:'#FAECE7'},
+  {id:4821,type:'water',title:'Water pipe burst near IIT gate',loc:'Hauz Khas Village',time:'1 hr ago',severity:'critical',status:'progress',votes:31,verified:12,progress:60,icon:'ti-droplet',color:'#378ADD',bg:'#E6F1FB'},
+  {id:4820,type:'light',title:'3 streetlights out on MG Road',loc:'Lajpat Nagar',time:'3 hrs ago',severity:'high',status:'progress',votes:18,verified:9,progress:40,icon:'ti-bulb',color:'#BA7517',bg:'#FAEEDA'},
+  {id:4819,type:'waste',title:'Overflowing dustbin — residential block C',loc:'Greater Kailash I',time:'5 hrs ago',severity:'medium',status:'progress',votes:11,verified:5,progress:70,icon:'ti-trash',color:'#639922',bg:'#EAF3DE'},
+  {id:4818,type:'pothole',title:'Pothole cluster near bus stand',loc:'Lajpat Nagar Mkt',time:'8 hrs ago',severity:'high',status:'resolved',votes:42,verified:19,progress:100,icon:'ti-road',color:'#D85A30',bg:'#FAECE7'},
+];
+const leaders=[
+  {name:'Priya Mehta',pts:3820,rank:1,bg:'#FAEEDA',tc:'#854F0B',badge:'1st'},
+  {name:'Rahul Singh',pts:2940,rank:2,bg:'#F1EFE8',tc:'#5F5E5A',badge:'2nd'},
+  {name:'Amit Kumar',pts:2510,rank:3,bg:'#FAECE7',tc:'#993C1D',badge:'3rd'},
+  {name:'Sneha Joshi',pts:1980,rank:4,bg:'#EAF3DE',tc:'#3B6D11',badge:''},
+];
+const activities=[
+  {text:'Priya Mehta verified issue #4821 — Water pipe burst',time:'5 min ago',color:'#3B6D11'},
+  {text:'Issue #4818 marked Resolved by NDMC',time:'22 min ago',color:'#639922'},
+  {text:'New report #4822 — Pothole on Aurobindo Marg',time:'12 min ago',color:'#D85A30'},
+  {text:'Rahul Singh earned badge: "Watchdog"',time:'45 min ago',color:'#BA7517'},
+  {text:'AI flagged cluster: 3 lights out near MG Road',time:'1 hr ago',color:'#378ADD'},
+];
+
+let currentFilter='all';
+let selectedType='';
+
+function renderIssues(){
+  const filtered=currentFilter==='all'?issues:issues.filter(i=>i.type===currentFilter);
+  document.getElementById('issue-list').innerHTML=filtered.map(i=>`
+    <div class="issue-card">
+      <div class="ic-top">
+        <div class="ic-icon" style="background:${i.bg};color:${i.color}"><i class="ti ${i.icon}" aria-hidden="true"></i></div>
+        <div class="ic-info">
+          <div class="ic-title">${i.title}</div>
+          <div class="ic-meta">
+            <span><i class="ti ti-map-pin" style="font-size:10px" aria-hidden="true"></i> ${i.loc}</span>
+            <span><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> ${i.time}</span>
+            <span><i class="ti ti-shield-check" style="font-size:10px;color:#639922" aria-hidden="true"></i> ${i.verified} verified</span>
+          </div>
+          <div class="ic-badges">
+            <span class="badge badge-${i.severity}">${i.severity}</span>
+            <span class="badge badge-${i.status}">${i.status==='progress'?'in progress':i.status}</span>
+            <button class="verify-btn" data-verify>Verify</button>
+          </div>
+        </div>
+        <div class="ic-votes">
+          <button class="vote-btn" data-vote><i class="ti ti-chevron-up" style="font-size:12px" aria-hidden="true"></i></button>
+          <span class="vote-count">${i.votes}</span>
+        </div>
+      </div>
+      ${i.status!=='pending'?`<div class="progress-bar"><div class="progress-fill" style="width:${i.progress}%;background:${i.progress===100?'#639922':i.color}"></div></div>`:''}
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.issue-card').forEach(card=>{
+    card.addEventListener('click',(e)=>{
+      if(e.target.closest('[data-vote]')||e.target.closest('[data-verify]'))return;
+      card.classList.toggle('selected');
+    });
+  });
+  document.querySelectorAll('[data-vote]').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const span=btn.nextElementSibling;
+      span.textContent=parseInt(span.textContent)+1;
+    });
+  });
+  document.querySelectorAll('[data-verify]').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      btn.textContent='Verified';
+      btn.style.background='#EAF3DE';
+      btn.style.color='#3B6D11';
+    });
+  });
+}
+
+function renderLeaderboard(){
+  document.getElementById('leaderboard-mini').innerHTML=leaders.map(l=>`
+    <div class="leaderboard-row">
+      <div class="lb-rank ${l.rank===1?'gold':''}">${l.rank}</div>
+      <div class="lb-avatar" style="background:${l.bg};color:${l.tc};font-size:9px">${l.name.split(' ').map(n=>n[0]).join('')}</div>
+      <div class="lb-name">${l.name}</div>
+      <div class="lb-pts">${l.pts.toLocaleString()} pts</div>
+      <div class="lb-badge" style="font-size:9px;color:${l.tc}">${l.badge}</div>
+    </div>
+  `).join('');
+}
+
+function renderActivity(){
+  document.getElementById('activity-feed').innerHTML=activities.map(a=>`
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.color}"></div>
+      <div>
+        <div class="activity-text">${a.text}</div>
+        <div class="activity-time">${a.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.querySelectorAll('.filter-pill').forEach(el=>{
+  el.addEventListener('click',()=>{
+    currentFilter=el.dataset.filter;
+    document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+    el.classList.add('active');
+    renderIssues();
+  });
+});
+
+document.querySelectorAll('.ch-nav-item').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.ch-nav-item').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+    if(el.dataset.tab==='report'){openModal();}
+  });
+});
+
+function openModal(){document.getElementById('modal-overlay').classList.remove('hidden');}
+function closeModal(){document.getElementById('modal-overlay').classList.add('hidden');}
+document.getElementById('open-report-btn').addEventListener('click',openModal);
+document.getElementById('modal-close-btn').addEventListener('click',closeModal);
+
+let analysisTimer;
+const aiSuggestions={
+  pothole:['Road damage','Infrastructure','MCD priority','Safety hazard'],
+  water:['Water supply','Pipe failure','DJB department','Emergency'],
+  light:['BSES Rajdhani','Electrical','Night safety'],
+  waste:['Sanitation','MCD','Health concern'],
+  other:['Infrastructure','Public concern'],
+};
+document.getElementById('issue-desc').addEventListener('input',function(){
+  const val=this.value;
+  clearTimeout(analysisTimer);
+  if(val.length<10){document.getElementById('ai-analysis').classList.add('hidden');return;}
+  analysisTimer=setTimeout(()=>{
+    const lower=val.toLowerCase();
+    let tags=aiSuggestions.other;
+    if(lower.includes('pothole')||lower.includes('road')||lower.includes('crater'))tags=aiSuggestions.pothole;
+    else if(lower.includes('water')||lower.includes('leak')||lower.includes('pipe'))tags=aiSuggestions.water;
+    else if(lower.includes('light')||lower.includes('dark')||lower.includes('street'))tags=aiSuggestions.light;
+    else if(lower.includes('waste')||lower.includes('garbage')||lower.includes('trash'))tags=aiSuggestions.waste;
+    document.getElementById('ai-tags').innerHTML=tags.map(t=>`<span class="ai-tag">${t}</span>`).join('');
+    document.getElementById('ai-analysis').classList.remove('hidden');
+  },500);
+});
+
+document.querySelectorAll('.type-option').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.type-option').forEach(o=>o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedType=el.dataset.type;
+  });
+});
+
+document.querySelectorAll('#severity-row .badge').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('#severity-row .badge').forEach(b=>b.style.outline='none');
+    el.style.outline='2px solid #2563a8';
+  });
+});
+
+document.getElementById('submit-issue-btn').addEventListener('click',()=>{
+  closeModal();
+  alert('Report submitted! Tracking ID #4823 — routed to the relevant department. You earned +50 XP.');
+  document.getElementById('issue-desc').value='';
+  document.getElementById('ai-analysis').classList.add('hidden');
+  document.querySelectorAll('.type-option').forEach(o=>o.classList.remove('selected'));
+});
+
+renderIssues();
+renderLeaderboard();
+renderActivity();
+</script>
 </body>
 </html>
